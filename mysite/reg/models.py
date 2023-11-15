@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.urls import reverse
 # Create your models here.
 
 from django.utils import timezone
@@ -21,14 +21,16 @@ class CustomUser(AbstractUser):
 
 class Post(models.Model):
     title = models.CharField(max_length=200)
-    description = models.TextField()
-    photo = models.ImageField()
+    description = models.TextField(blank=True)
+    photo = models.ImageField(upload_to='photos')
     date_posted = models.DateTimeField(default=timezone.now)
     author = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.title
 
+    def get_absolute_url(self):
+        return reverse('post', kwargs={'post_id': self.pk})
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE)
@@ -40,11 +42,12 @@ class Comment(models.Model):
         return self.text
 
 class Like(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    post_liked = models.ForeignKey(Post, on_delete=models.CASCADE)
+    like_author = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    #timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ("post", "user")
+        unique_together = ("post_liked", "like_author")
 
     def __str__(self):
         return f''

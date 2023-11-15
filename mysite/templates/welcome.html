@@ -4,11 +4,15 @@
 
 {% block content %}
 {% if user.is_authenticated %}
-  Hi {{ user.username }}!
-  <p><a href="{% url 'logout' %}">logout</a></p>
+  <meta http-equiv="refresh" content="0;URL=http://127.0.0.1:8000/line/"/>
 {% else %}
-  <p>You are not logged in</p>
-  <a href="{% url 'login' %}">login</a> |
-  <a href="{% url 'signup' %}">signup</a>
+  <p></p>
+  <form action="http://127.0.0.1:8000/reg/signup">
+    <button> Войти или зарегистрироваться </button>
+  </form>
+  <p></p>
+  <form action="http://127.0.0.1:8000/line/">
+    <button>Продолжить как гость </button>
+  </form>
 {% endif %}
 {% endblock %}
