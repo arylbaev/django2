@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     #'reg',
     'reg.apps.RegConfig',
     'line',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

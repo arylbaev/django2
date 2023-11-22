@@ -11,11 +11,11 @@
 <p><img src="{{ post.photo.url }}" height="300" width="400"/></p>
 
 {% if user.is_authenticated %}
-<form action="http://127.0.0.1:8000/line/api/post/{{post.pk}}/like/">
+<form action="http://127.0.0.1:8000/line/{{ post.pk }}/{{ user.pk }}/like/">
     <button>Красиво</button>
 </form>
 {% else %}
-<form action="http://127.0.0.1:8000/reg/signup">
+<form action="http://127.0.0.1:8000/reg/signup/">
     <button>Красиво</button>
 </form>
 {% endif %}

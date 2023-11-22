@@ -6,8 +6,14 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
 
 
+from rest_framework import viewsets
+from rest_framework.response import Response
+from rest_framework.decorators import action
 from rest_framework import status
-from rest_framework.generics import CreateAPIView, DestroyAPIView
+
+
+from rest_framework import status
+from rest_framework.generics import CreateAPIView, DestroyAPIView, ListAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .serializers import *
@@ -15,14 +21,48 @@ from .serializers import *
 
 def show(request):
     posts = Post.objects.all()
+
     return render(request, 'line.html', {'posts': posts})
 
 
-def show_post(request, post_id):
+def show_post_user(request, post_id, user_id):
+    post = get_object_or_404(Post, pk=post_id)
+    #user = get_object_or_404(CustomUser, pk=user_id)
+
+    return render(request, 'line/post.html', {'post': post})
+
+
+class LikeViewSet(viewsets.ModelViewSet):
+    queryset = Like.objects.all()
+    serializer_class = LikeSerializer
+
+    @action(detail=True, methods=['POST'])
+    def set_like(self, request, pk=None):
+        post = self.get_object()
+        user = request.user
+
+        like, created = Like.objects.get_or_create(user=user, post=post)
+
+        if not created:
+            return Response({'status': 'already liked'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'status': 'liked'})
+
+
+def show_post_guest(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
 
     return render(request, 'line/post.html', {'post': post})
 
+
+def like_post(request, post_id, user_id):
+    user = CustomUser.objects.get(id=user_id)
+    #like = Like(post_id, user_id)
+    #like.save()
+    post = get_object_or_404(Post, pk=post_id)
+    Like.objects.create(post_liked=post, like_author=user)
+
+    return render(request, 'line/post.html', {'post': post, 'user': user})
 
 class LikeView(CreateAPIView):
 
@@ -49,7 +89,9 @@ class UnlikeView(DestroyAPIView):
         return Response(status=status.HTTP_200_OK)
 
 
-
+class PostAPIView(ListAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
 
 
 

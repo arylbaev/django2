@@ -42,8 +42,8 @@ class Comment(models.Model):
         return self.text
 
 class Like(models.Model):
-    post_liked = models.ForeignKey(Post, on_delete=models.CASCADE)
-    like_author = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    post_liked = models.ForeignKey(Post, on_delete=models.CASCADE, null=True)
+    like_author = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)
     #timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
