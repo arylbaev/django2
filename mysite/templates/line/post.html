@@ -32,9 +32,13 @@
     <button>Like</button>
 </form>
 {% endif %}
+
 {% if user.is_authenticated %}
-<div id="comment_info">{{ form }}</div>
-<button onclick="send_comment()">Send</button>
+<form id="comment_form">
+  <input type="text" name="Leave a comment" value="comment">
+  <input type="submit">
+</form>
+<!--button form="comment_form" onclick="send_comment()">Send</button-->
 {% else %}
 {% endif %}
 

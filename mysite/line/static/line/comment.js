@@ -23,5 +23,13 @@ async function makeRequest(url, method, body){
 
 async function send_comment(){
   console.log('comment')
+  const formElement = document.getElementById('comment_form');
+  formElement.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const formData = new FormData(formElement);
+    const comment = formData.get('comment');
+    url =
+    makeRequest(url, method='post', body=JSON.stringify({user_id: user_id, post_id: post_id}))
+});
 
 }
