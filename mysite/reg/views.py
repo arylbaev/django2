@@ -1,8 +1,10 @@
+from django.http import request
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
-
+from hashlib import sha256
 from .forms import CustomUserCreationForm
+
 
 class SignUpView(CreateView):
     form_class = CustomUserCreationForm

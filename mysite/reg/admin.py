@@ -5,15 +5,26 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 
 from .forms import CustomUserCreationForm, CustomUserChangeForm
-from .models import CustomUser, Post, Comment, Like
+from .models import CustomUser, Post, Comment, Like, Follower
+
 
 class CustomUserAdmin(UserAdmin):
     add_form = CustomUserCreationForm
     form = CustomUserChangeForm
     model = CustomUser
-    list_display = ['username', 'user_email', 'user_firstname', 'user_lastname', 'user_age']
+    list_display = ['username', 'user_email', 'user_firstname', 'user_lastname', 'user_age', 'pseudo']
+
+    add_fieldsets = (
+        (None, {
+            'fields': ('username', 'password', 'password2')}
+         ),
+    )
+
+    #prepopulated_fields = {'slug': ('username',)}
+
 
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Like)
 admin.site.register(Comment)
 admin.site.register(Post)
+admin.site.register(Follower)

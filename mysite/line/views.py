@@ -1,97 +1,74 @@
 from django.shortcuts import render, get_object_or_404
+from rest_framework.views import APIView
+
 from .models import *
 from django.http import HttpResponse, Http404, HttpResponseNotFound, JsonResponse
 
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
 
+from rest_framework.decorators import api_view, renderer_classes
 
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import status
 
+from django.views.generic import View
 
 from rest_framework import status
-from rest_framework.generics import CreateAPIView, DestroyAPIView, ListAPIView
+from rest_framework.generics import *
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .serializers import *
-
+from .forms import *
+import json
+from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
 
 def show(request):
     posts = Post.objects.all()
-
+    print(posts)
     return render(request, 'line.html', {'posts': posts})
 
 
-def show_post_user(request, post_id, user_id):
+def show_post(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
-    #user = get_object_or_404(CustomUser, pk=user_id)
-
-    return render(request, 'line/post.html', {'post': post})
-
-
-class LikeViewSet(viewsets.ModelViewSet):
-    queryset = Like.objects.all()
-    serializer_class = LikeSerializer
-
-    @action(detail=True, methods=['POST'])
-    def set_like(self, request, pk=None):
-        post = self.get_object()
-        user = request.user
-
-        like, created = Like.objects.get_or_create(user=user, post=post)
-
-        if not created:
-            return Response({'status': 'already liked'}, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response({'status': 'liked'})
+    user = request.user
+    form = AddComment
+    if user.is_authenticated:
+        return render(request, 'line/post.html', {'post': post, 'user': user, 'form': form})
+    else:
+        return render(request, 'line/post.html', {'post': post})
 
 
-def show_post_guest(request, post_id):
-    post = get_object_or_404(Post, pk=post_id)
+def show_profile(request, user_slug):
+    user = get_object_or_404(CustomUser, pseudo=user_slug)
+    posts = Post.objects.filter(author=user.pk)
+    """datas = []
+    for p in posts:
+        data = dict(title=p.title, description=p.description, photo=p.photo,
+                    date_posted=p.date_posted, author=p.author)
+        datas.append(data)"""
+    print(posts)
+    return render(request, 'line/profile.html', {'user': user, 'posts': posts})
 
-    return render(request, 'line/post.html', {'post': post})
 
-
-def like_post(request, post_id, user_id):
-    user = CustomUser.objects.get(id=user_id)
-    #like = Like(post_id, user_id)
-    #like.save()
-    post = get_object_or_404(Post, pk=post_id)
-    Like.objects.create(post_liked=post, like_author=user)
-
-    return render(request, 'line/post.html', {'post': post, 'user': user})
-
-class LikeView(CreateAPIView):
-
-    permission_classes = [IsAuthenticated, ]
-
+class LikeDetail(APIView):
     def post(self, request, *args, **kwargs):
-        post = Post.objects.get(id=kwargs["id"])
-        user = request.user
-        like = Like.objects.create(post=post, user=user)
 
-        return Response(LikeSerializer(like).data, status=status.HTTP_200_OK)
+        data = request.data
+        print(data)
+        post = get_object_or_404(Post, pk=data['post_id'])
+        user = get_object_or_404(CustomUser, pk=data['user_id'])
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
 
-
-class UnlikeView(DestroyAPIView):
-
-    permission_classes = [IsAuthenticated, ]
-
-    def delete(self, request, *args, **kwargs):
-        user = request.user
-        post = Post.objects.get(id=kwargs["id"])
-        like = Like.objects.get(user=user, post=post)
-        like.delete()
+            l, created = Like.objects.get_or_create(post_liked=post, like_author=user)
+            if not created:
+                l.delete()
 
         return Response(status=status.HTTP_200_OK)
 
 
-class PostAPIView(ListAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
 
 
 

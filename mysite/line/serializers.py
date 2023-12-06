@@ -1,9 +1,20 @@
 from rest_framework import serializers
-from .models import Post
+from .models import *
 
-class LikeSerializer(serializers.Serializer):
-    post = serializers.CharField(source='post_liked.id')
-    user = serializers.CharField(source='like_author.username')
+
+class LikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        fields = '__all__'
+
+
+
+
+class CustomUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CustomUser
+        fields = ('username', 'pseudo')
 
 
 class PostSerializer(serializers.ModelSerializer):
